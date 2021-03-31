@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include <stdio.h>
 
 void scope1();
 void scope2();
