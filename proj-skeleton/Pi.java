@@ -10,7 +10,7 @@ import java.io.*;
 public class Pi {
 
 
-
+    // Example on how to run: java Pi a 3 65
     public static void main(String[] args) throws IOException {
         System.out.println("its running");
         int t_support = Integer.parseInt(args[1]);
@@ -76,11 +76,14 @@ public class Pi {
                 
                 /* Add # uses to soloSupport */
                 soloSupport.put(callerName,uses);
+                ArrayList<String> arr = new ArrayList<String>();
 
                 line = in.nextLine();
                 System.out.println("line:" + line);
                 nestedIn = in;
+                
                 while (line.contains("CS<") && (in.hasNextLine())) {
+                    nestedIn = in;
                     System.out.println("inside while contains CS");
                     if (line.indexOf("\'") == -1) {
                         System.out.println("no \' :" + line);
@@ -97,11 +100,15 @@ public class Pi {
                     callerContainsSet.add(func1);
                     String nestedLoopLine = nestedIn.nextLine();
                     System.out.println("nll: " + nestedLoopLine);
+                    arr.add(func1);
                     while(nestedLoopLine.contains("CS<") && nestedIn.hasNextLine()) {
+                        //System.out.println("curLine:" + line);
                         firstOfName = nestedLoopLine.indexOf("\'") + 1;
                         lastOfName = nestedLoopLine.lastIndexOf("\'");
                         String func2 = nestedLoopLine.substring(firstOfName,lastOfName);
                         //System.out.print
+                        arr.add(func2);
+                        /*
                         Pair newPair2 = new Pair(func1,func2);
                         System.out.println("newpair2 = " + newPair2);
                         pairsSet.add(newPair2);
@@ -114,13 +121,44 @@ public class Pi {
                             System.out.println("its new");
                             pairSupport.put(newPair2, 1);
                         }
+                        */
                         nestedLoopLine = nestedIn.nextLine();
+                        
                     }
+
+                    for (int i = 0; i < arr.size(); i++) {
+                        for (int j = i+1; j < arr.size(); j++) {
+                            
+                            Pair newPair2 = new Pair(arr.get(i),arr.get(j));
+                            System.out.println("newpair2 = " + newPair2);
+                            pairsSet.add(newPair2);
+                            Boolean itsNotNew = pairSupport.containsKey(newPair2);
+                            if (itsNotNew) {
+                                System.out.println("its not new");
+                                int val = pairSupport.get(newPair2);
+                                pairSupport.put(newPair2, val + 1);
+                            } else {
+                                System.out.println("its new");
+                                pairSupport.put(newPair2, 1);
+                            }
+
+                        }
+                    }
+                    // Testing Matt
+                    
+
                     callerPairs.put(callerName, pairsSet);
                     callerContains.put(callerName, callerContainsSet);
-                    if (in.hasNextLine())
+                    System.out.println("curLine:" + line);
+                    //System.out.println("curLine:" + line);
+                    if (in.hasNextLine()) {
                         line = in.nextLine();
+                        System.out.println("nextLine: " + line);
+                    }
+                        
 
+                    //System.out.println("curLine:" + line);
+                    //System.out.println("nll: " + nestedLoopLine);
                 }
 
             }
