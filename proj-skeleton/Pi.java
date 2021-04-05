@@ -120,6 +120,7 @@ public class Pi {
                         String func2 = nestedLoopLine.substring(firstOfName,lastOfName);
                         //System.out.print
                         arr.add(func2);
+                        callerContainsSet.add(func2);
                         /*
                         Pair newPair2 = new Pair(func1,func2);
                         System.out.println("newpair2 = " + newPair2);
@@ -178,10 +179,10 @@ public class Pi {
         //System.out.println(line);
         in.close();
         System.out.println("into the for loop area");
-        System.out.println(pairSupport.entrySet());
+        //System.out.println(pairSupport.entrySet());
         for (Map.Entry<Pair,Integer> entry : pairSupport.entrySet()) {
             /* If the support threshold is met for possible bug */
-            System.out.println("\n--entry " + entry.getKey() + ", " + entry.getValue());
+            //System.out.println("\n--entry " + entry.getKey() + ", " + entry.getValue());
             if (entry.getValue() >= t_support) {
                 System.out.println("value over t support");
                 /* Then get the information about that pair */
@@ -199,12 +200,14 @@ public class Pi {
                 System.out.println("aconf = " + aConfidence);
                 double bConfidence = 100*(((double)pairSupp)/(bSoloSupp));
                 System.out.println("bconf = " + bConfidence);
+                // String.format("%.2f", input)
+                //DecimalFormat df = new DecimalFormat("###.###");
                 /* If above threshold, it is a bug and needs to be printed */
                 ArrayList<String> namesOfBuggedCallers = new ArrayList<String>();
                 if (aConfidence >= t_confidence) {
-                    System.out.println("value over confidence");
-                    System.out.println("CallerPairs entryset");
-                    System.out.println(callerPairs.entrySet());
+                    // System.out.println("value over confidence");
+                    // System.out.println("CallerPairs entryset");
+                    //System.out.println(callerPairs.entrySet());
                     // for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                     //     if (callerSet.getvalue().equals("scope2")) {
                     //         System.out.println(callerSet.getValue());
@@ -212,14 +215,19 @@ public class Pi {
                     // }
                     for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                         /* Go through the functions and check where the pair is not present */
-                        System.out.println("bugpair:" + bugPair);
-                        System.out.println("getval:" + callersSet.getKey());
-                        System.out.println("containsBugPair" + callersSet.getValue().contains(bugPair));
+                        // System.out.println("bugpair:" + bugPair);
+                        // System.out.println("getval:" + callersSet.getKey());
+                        // System.out.println("containsBugPair:" + callersSet.getValue().contains(bugPair));
                         if (!(callersSet.getValue().contains(bugPair))) {
                             String callersName = callersSet.getKey();
                             /* For those where the pair isnt present, check if the func
                             exists in the caller at all.
                             If true, that caller is a bug spot that must be printed. */
+                            // System.out.println("a:" + a + " b:" + b);
+                            // System.out.println("callersName:" + callersName);
+                            // System.out.println(callerContains.entrySet());
+                            // System.out.println("callerContains.get(callersName):" + callerContains.get(callersName));
+                            // System.out.println("callerContains.get(callersName).contains(a):" + callerContains.get(callersName).contains(a));
                             if (callerContains.get(callersName).contains(a)) {
                                 namesOfBuggedCallers.add(callersName);
                             }
@@ -228,7 +236,7 @@ public class Pi {
                     for (String callerNameToPrint : namesOfBuggedCallers) {
                         System.out.println("bug: " + a + " in " + callerNameToPrint + 
                         ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                        ", confidence: " + aConfidence + "\n");
+                        ", confidence: " + String.format("%.2f", aConfidence) + "%\n");
                     }
                 }
                 namesOfBuggedCallers.clear();
@@ -248,8 +256,8 @@ public class Pi {
                     }
                     for (String callerNameToPrint : namesOfBuggedCallers)
                     System.out.println("bug: " + b + " in " + callerNameToPrint + 
-                    ", pair: (" + a + ", " + b + ", support: " + pairSupp +
-                    ", confidence: " + aConfidence + "\n");
+                    ", pair: (" + a + ", " + b + "), support: " + pairSupp +
+                    ", confidence: " + String.format("%.2f", bConfidence)  + "%\n");
                 }
                 namesOfBuggedCallers.clear();
             }
