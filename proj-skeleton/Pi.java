@@ -19,7 +19,15 @@ public class Pi {
         int t_confidence = Integer.parseInt(args[2]);
         System.out.println("args 1: " + args[1]);
         System.out.println("args 2: " + args[2]);
-        File file = new File("./test2/main.c.callgraph.readme");
+
+
+        System.out.println(args[0]);
+        // EDITS TO FILE
+        String callGraphFile = args[0] + ".callgraph";
+        //File file = new File("./test2/main.c.callgraph.readme");
+
+        System.out.println(callGraphFile);
+        File file = new File(callGraphFile);
         Scanner in = new Scanner(file);
         Scanner nestedIn = new Scanner(file);
          
@@ -114,6 +122,11 @@ public class Pi {
                     System.out.println("nll: " + nestedLoopLine);
                     arr.add(func1);
                     while(nestedLoopLine.contains("CS<") && nestedIn.hasNextLine()) {
+                        if (nestedLoopLine.indexOf("\'") == -1) {
+                            System.out.println("no \' :" + line);
+                            nestedLoopLine = in.nextLine();
+                            break;
+                        }
                         //System.out.println("curLine:" + line);
                         firstOfName = nestedLoopLine.indexOf("\'") + 1;
                         lastOfName = nestedLoopLine.lastIndexOf("\'");
@@ -200,8 +213,6 @@ public class Pi {
                 System.out.println("aconf = " + aConfidence);
                 double bConfidence = 100*(((double)pairSupp)/(bSoloSupp));
                 System.out.println("bconf = " + bConfidence);
-                // String.format("%.2f", input)
-                //DecimalFormat df = new DecimalFormat("###.###");
                 /* If above threshold, it is a bug and needs to be printed */
                 ArrayList<String> namesOfBuggedCallers = new ArrayList<String>();
                 if (aConfidence >= t_confidence) {
