@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 //import java.util.StringTokenizer;
 import java.util.*;
+
+
 import java.io.*;
 
 //import jdk.internal.org.jline.utils.InputStreamReader;
@@ -27,11 +29,11 @@ public class Pi {
         // of uses for the function as a hasmap <String,int>
         HashMap<String,Integer> soloSupport = new HashMap<>();
 
-        // pairsSet gets the set of string pairs of callees within a
-        // caller function - will be added to callerPairs for the caller name
-        // May need to be a set????
-        HashSet<Pair> pairsSet = new HashSet<Pair>();
-        //HashMap<String,String> pairsSet = new HashMap<>();
+        // // // pairsSet gets the set of string pairs of callees within a
+        // // // caller function - will be added to callerPairs for the caller name
+        // // // May need to be a set????
+        // HashSet<Pair> pairsSet = new HashSet<Pair>();
+        // //HashMap<String,String> pairsSet = new HashMap<>();
 
         // callerPairs will set up a hashmap of the unique pairs of
         // callee string function names within a caller
@@ -42,15 +44,25 @@ public class Pi {
         //HashMap<String,HashSet<String>> callerContains = new HashMap<String,HashSet<String>>();
         HashMap<String,HashSet<String>> callerContains = new HashMap<String,HashSet<String>>();
 
-        // callerContainsSet is a HashSet<String> that will be the set of
-        // String function names that are in the caller function.
-        // This set is the value for the callerContains hashmap.
-        HashSet<String> callerContainsSet = new HashSet<String>();
+        // // callerContainsSet is a HashSet<String> that will be the set of
+        // // String function names that are in the caller function.
+        // // This set is the value for the callerContains hashmap.
+        // HashSet<String> callerContainsSet = new HashSet<String>();
 
         // pairSupport<Pairs,# of appearances in all scopes>
         // can only be incremented once per call block - for support of the pair
         HashMap<Pair,Integer> pairSupport = new HashMap<Pair,Integer>();
         while (in.hasNextLine()) {
+            // pairsSet gets the set of string pairs of callees within a
+            // caller function - will be added to callerPairs for the caller name
+            // May need to be a set????
+            HashSet<Pair> pairsSet = new HashSet<Pair>();
+
+            // callerContainsSet is a HashSet<String> that will be the set of
+            // String function names that are in the caller function.
+            // This set is the value for the callerContains hashmap.
+            HashSet<String> callerContainsSet = new HashSet<String>();
+
             if (line.contains("null function")) {
                 line = in.nextLine();
                 
@@ -181,6 +193,7 @@ public class Pi {
                 int aSoloSupp = soloSupport.get(a);
                 System.out.println("asolo = " + aSoloSupp);
                 int bSoloSupp = soloSupport.get(b);
+                System.out.println("bsolo = " + bSoloSupp);
                 /* Check the confidence of the first member of the pair */
                 double aConfidence = 100*(((double)pairSupp)/(aSoloSupp));
                 System.out.println("aconf = " + aConfidence);
@@ -190,8 +203,18 @@ public class Pi {
                 ArrayList<String> namesOfBuggedCallers = new ArrayList<String>();
                 if (aConfidence >= t_confidence) {
                     System.out.println("value over confidence");
+                    System.out.println("CallerPairs entryset");
+                    System.out.println(callerPairs.entrySet());
+                    // for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
+                    //     if (callerSet.getvalue().equals("scope2")) {
+                    //         System.out.println(callerSet.getValue());
+                    //     }
+                    // }
                     for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                         /* Go through the functions and check where the pair is not present */
+                        System.out.println("bugpair:" + bugPair);
+                        System.out.println("getval:" + callersSet.getKey());
+                        System.out.println("containsBugPair" + callersSet.getValue().contains(bugPair));
                         if (!(callersSet.getValue().contains(bugPair))) {
                             String callersName = callersSet.getKey();
                             /* For those where the pair isnt present, check if the func
@@ -204,12 +227,12 @@ public class Pi {
                     }
                     for (String callerNameToPrint : namesOfBuggedCallers) {
                         System.out.println("bug: " + a + " in " + callerNameToPrint + 
-                        ", pair: (" + a + ", " + b + ", support: " + pairSupp +
+                        ", pair: (" + a + ", " + b + "), support: " + pairSupp +
                         ", confidence: " + aConfidence + "\n");
                     }
                 }
                 namesOfBuggedCallers.clear();
-                if (bConfidence > t_confidence) {
+                if (bConfidence >= t_confidence) {
                     for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                         /* Go through the functions and check where the pair is not present */
                         if (!(callersSet.getValue().contains(bugPair))) {
