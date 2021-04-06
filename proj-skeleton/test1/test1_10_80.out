@@ -1,0 +1,20 @@
+its running
+args 1: 10
+args 2: 80
+test1.bc
+test1.bc.callgraph
+start
+uses = 0
+cn:main
+line:  CS<0x55e61b35c4c0> calls function 'printf'
+inside while contains CS
+nll: 
+curLine:  CS<0x55e61b35c4c0> calls function 'printf'
+nextLine: Call graph node for function: 'printf'<<0x55e61b2f98c0>>  #uses=2
+start
+uses = 1
+cn:printf
+line:  CS<0x0> calls external node
+inside while contains CS
+no ' :  CS<0x0> calls external node
+into the for loop area
