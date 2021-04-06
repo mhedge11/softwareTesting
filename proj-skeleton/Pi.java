@@ -14,19 +14,31 @@ public class Pi {
 
     // Example on how to run: java Pi a 3 65
     public static void main(String[] args) throws IOException {
-        System.out.println("its running");
-        int t_support = Integer.parseInt(args[1]);
-        int t_confidence = Integer.parseInt(args[2]);
-        System.out.println("args 1: " + args[1]);
-        System.out.println("args 2: " + args[2]);
+        //System.out.println("its running");
+        int t_support;
+        int t_confidence;
+        if (args.length > 1) {
+            t_support = Integer.parseInt(args[1]);
+            t_confidence = Integer.parseInt(args[2]);
+            // System.out.println("args 1: " + args[1]);
+            // System.out.println("args 2: " + args[2]);
+        } else {
+            t_support = 3;
+            t_confidence = 65;
+        }
+        
+
+            
+        //}
+        
 
 
-        System.out.println(args[0]);
+        //System.out.println(args[0]);
         // EDITS TO FILE
         String callGraphFile = args[0] + ".callgraph";
         //File file = new File("./test2/main.c.callgraph.readme");
 
-        System.out.println(callGraphFile);
+        //System.out.println(callGraphFile);
         File file = new File(callGraphFile);
         Scanner in = new Scanner(file);
         Scanner nestedIn = new Scanner(file);
@@ -79,19 +91,19 @@ public class Pi {
                 line = in.nextLine();
             }
             if (line.indexOf("Call graph node") != -1) {
-                System.out.println("start");
+                //System.out.println("start");
                 int useIndex = line.indexOf("uses=");
                 useIndex = useIndex + 5;
                 //System.out.println("uses # = " + useIndex);
                 int uses = Integer.parseInt(line.substring(useIndex));
                 uses--;
-                System.out.println("uses = " + uses);
+                //System.out.println("uses = " + uses);
                 int firstOfName = line.indexOf("\'") + 1;
                 int lastOfName = line.lastIndexOf("\'");
                 // System.out.println(line);
                 // System.out.println("f:" + firstOfName + " l:" + lastOfName);
                 String callerName = line.substring(firstOfName,lastOfName);
-                System.out.println("cn:" + callerName);
+                //System.out.println("cn:" + callerName);
 
                 
                 /* Add # uses to soloSupport */
@@ -99,14 +111,14 @@ public class Pi {
                 ArrayList<String> arr = new ArrayList<String>();
 
                 line = in.nextLine();
-                System.out.println("line:" + line);
+                //System.out.println("line:" + line);
                 nestedIn = in;
                 
                 while (line.contains("CS<") && (in.hasNextLine())) {
                     nestedIn = in;
-                    System.out.println("inside while contains CS");
+                    //System.out.println("inside while contains CS");
                     if (line.indexOf("\'") == -1) {
-                        System.out.println("no \' :" + line);
+                        //System.out.println("no \' :" + line);
                         line = in.nextLine();
                         break;
                     }
@@ -119,11 +131,11 @@ public class Pi {
                     //pairsSet.add(newPair);
                     callerContainsSet.add(func1);
                     String nestedLoopLine = nestedIn.nextLine();
-                    System.out.println("nll: " + nestedLoopLine);
+                    //System.out.println("nll: " + nestedLoopLine);
                     arr.add(func1);
                     while(nestedLoopLine.contains("CS<") && nestedIn.hasNextLine()) {
                         if (nestedLoopLine.indexOf("\'") == -1) {
-                            System.out.println("no \' :" + line);
+                            //System.out.println("no \' :" + line);
                             nestedLoopLine = in.nextLine();
                             break;
                         }
@@ -156,15 +168,15 @@ public class Pi {
                         for (int j = i+1; j < arr.size(); j++) {
                             
                             Pair newPair2 = new Pair(arr.get(i),arr.get(j));
-                            System.out.println("newpair2 = " + newPair2);
+                            //System.out.println("newpair2 = " + newPair2);
                             pairsSet.add(newPair2);
                             Boolean itsNotNew = pairSupport.containsKey(newPair2);
                             if (itsNotNew) {
-                                System.out.println("its not new");
+                                //System.out.println("its not new");
                                 int val = pairSupport.get(newPair2);
                                 pairSupport.put(newPair2, val + 1);
                             } else {
-                                System.out.println("its new");
+                                //System.out.println("its new");
                                 pairSupport.put(newPair2, 1);
                             }
 
@@ -175,11 +187,11 @@ public class Pi {
 
                     callerPairs.put(callerName, pairsSet);
                     callerContains.put(callerName, callerContainsSet);
-                    System.out.println("curLine:" + line);
+                    //System.out.println("curLine:" + line);
                     //System.out.println("curLine:" + line);
                     if (in.hasNextLine()) {
                         line = in.nextLine();
-                        System.out.println("nextLine: " + line);
+                        //System.out.println("nextLine: " + line);
                     }
                         
 
@@ -191,13 +203,13 @@ public class Pi {
         }
         //System.out.println(line);
         in.close();
-        System.out.println("into the for loop area");
+        //System.out.println("into the for loop area");
         //System.out.println(pairSupport.entrySet());
         for (Map.Entry<Pair,Integer> entry : pairSupport.entrySet()) {
             /* If the support threshold is met for possible bug */
             //System.out.println("\n--entry " + entry.getKey() + ", " + entry.getValue());
             if (entry.getValue() >= t_support) {
-                System.out.println("value over t support");
+                //System.out.println("value over t support");
                 /* Then get the information about that pair */
                 int pairSupp = entry.getValue();
                 Pair bugPair = entry.getKey();
@@ -205,14 +217,14 @@ public class Pi {
                 String b = bugPair.getB();
                 /* Get each soloSupport to calculate confidence */ 
                 int aSoloSupp = soloSupport.get(a);
-                System.out.println("asolo = " + aSoloSupp);
+                //System.out.println("asolo = " + aSoloSupp);
                 int bSoloSupp = soloSupport.get(b);
-                System.out.println("bsolo = " + bSoloSupp);
+                //System.out.println("bsolo = " + bSoloSupp);
                 /* Check the confidence of the first member of the pair */
                 double aConfidence = 100*(((double)pairSupp)/(aSoloSupp));
-                System.out.println("aconf = " + aConfidence);
+                //System.out.println("aconf = " + aConfidence);
                 double bConfidence = 100*(((double)pairSupp)/(bSoloSupp));
-                System.out.println("bconf = " + bConfidence);
+                //System.out.println("bconf = " + bConfidence);
                 /* If above threshold, it is a bug and needs to be printed */
                 ArrayList<String> namesOfBuggedCallers = new ArrayList<String>();
                 if (aConfidence >= t_confidence) {
@@ -247,7 +259,7 @@ public class Pi {
                     for (String callerNameToPrint : namesOfBuggedCallers) {
                         System.out.println("bug: " + a + " in " + callerNameToPrint + 
                         ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                        ", confidence: " + String.format("%.2f", aConfidence) + "%\n");
+                        ", confidence: " + String.format("%.2f", aConfidence) + "%");
                     }
                 }
                 namesOfBuggedCallers.clear();
@@ -268,7 +280,7 @@ public class Pi {
                     for (String callerNameToPrint : namesOfBuggedCallers)
                     System.out.println("bug: " + b + " in " + callerNameToPrint + 
                     ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                    ", confidence: " + String.format("%.2f", bConfidence)  + "%\n");
+                    ", confidence: " + String.format("%.2f", bConfidence)  + "%");
                 }
                 namesOfBuggedCallers.clear();
             }

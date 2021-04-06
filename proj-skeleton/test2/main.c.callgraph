@@ -1,3 +1,0 @@
-opt: test2/main.c:1:1: error: expected top-level entity
-#include <stdio.h>
-^
