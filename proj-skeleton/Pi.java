@@ -107,9 +107,22 @@ public class Pi {
 
                 
                 /* Add # uses to soloSupport */
-                soloSupport.put(callerName,uses);
+                if(callerName.equals("ap_str_tolower")) {
+                    //System.out.println("apr str tolower uses: " + uses);
+                }
+                if(callerName.equals("apr_array_push")) {
+                    //System.out.println("apr_array_push: " + uses);
+                }
+                /*boolean soloItsNotNew = soloSupport.containsKey(callerName);
+                if (soloItsNotNew) {
+                    int soloVal = soloSupport.get(callerName);
+                    soloSupport.put(callerName, soloVal + 1);
+                } else {
+                    soloSupport.put(callerName, 1);
+                }*/
                 ArrayList<String> arr = new ArrayList<String>();
-
+                pairsSet.clear();
+                callerContainsSet.clear();
                 line = in.nextLine();
                 //System.out.println("line:" + line);
                 nestedIn = in;
@@ -117,6 +130,11 @@ public class Pi {
                 while (line.contains("CS<") && (in.hasNextLine())) {
                     nestedIn = in;
                     //System.out.println("inside while contains CS");
+                    if (line.indexOf("external node") != -1) {
+                        //System.out.println("no \' :" + line);
+                        line = in.nextLine();
+                        continue;
+                    }
                     if (line.indexOf("\'") == -1) {
                         //System.out.println("no \' :" + line);
                         line = in.nextLine();
@@ -129,11 +147,23 @@ public class Pi {
                     //System.out.println("a:" + newPair.getA() + " b:" + newPair.getB());
                     //callerContains.put(callerName, func1);
                     //pairsSet.add(newPair);
+                    //System.out.println("adding " + func1 + " to arr");
                     callerContainsSet.add(func1);
-                    String nestedLoopLine = nestedIn.nextLine();
-                    //System.out.println("nll: " + nestedLoopLine);
-                    arr.add(func1);
-                    while(nestedLoopLine.contains("CS<") && nestedIn.hasNextLine()) {
+                    boolean soloLoopItsNotNew = soloSupport.containsKey(func1);
+                if (soloLoopItsNotNew) {
+                    int soloVal = soloSupport.get(func1);
+                    soloSupport.put(func1, soloVal + 1);
+                } else {
+                    soloSupport.put(func1, 1);
+                }
+                    //String nestedLoopLine = nestedIn.nextLine();
+                    //System.out.println("line: " + line);
+                    if (!arr.contains(func1)) {
+                        arr.add(func1);
+                    }
+                    line = in.nextLine();
+                    //callerContainsSet.add(func1);
+                    /*while(nestedLoopLine.contains("CS<") && nestedIn.hasNextLine()) {
                         if (nestedLoopLine.indexOf("\'") == -1) {
                             //System.out.println("no \' :" + line);
                             nestedLoopLine = in.nextLine();
@@ -144,8 +174,10 @@ public class Pi {
                         lastOfName = nestedLoopLine.lastIndexOf("\'");
                         String func2 = nestedLoopLine.substring(firstOfName,lastOfName);
                         //System.out.print
-                        arr.add(func2);
-                        callerContainsSet.add(func2);
+                        if (!arr.contains(func2)){
+                            arr.add(func2);
+                            callerContainsSet.add(func2);
+                        }*/
                         /*
                         Pair newPair2 = new Pair(func1,func2);
                         System.out.println("newpair2 = " + newPair2);
@@ -159,12 +191,12 @@ public class Pi {
                             System.out.println("its new");
                             pairSupport.put(newPair2, 1);
                         }
-                        */
+                        
                         nestedLoopLine = nestedIn.nextLine();
                         
-                    }
+                    }*/
 
-                    for (int i = 0; i < arr.size(); i++) {
+                    /*for (int i = 0; i < arr.size(); i++) {
                         for (int j = i+1; j < arr.size(); j++) {
                             
                             Pair newPair2 = new Pair(arr.get(i),arr.get(j));
@@ -181,23 +213,48 @@ public class Pi {
                             }
 
                         }
-                    }
+                    }*/
                     // Testing Matt
                     
 
-                    callerPairs.put(callerName, pairsSet);
-                    callerContains.put(callerName, callerContainsSet);
+                    //callerPairs.put(callerName, pairsSet);
+                    //callerContains.put(callerName, callerContainsSet);
                     //System.out.println("curLine:" + line);
                     //System.out.println("curLine:" + line);
-                    if (in.hasNextLine()) {
-                        line = in.nextLine();
+                    //if (in.hasNextLine()) {
+                    //    line = in.nextLine();
                         //System.out.println("nextLine: " + line);
-                    }
+                    //}
                         
 
                     //System.out.println("curLine:" + line);
                     //System.out.println("nll: " + nestedLoopLine);
                 }
+                //System.out.println("creating the pair supports");
+                for (int i = 0; i < arr.size(); i++) {
+                    for (int j = i+1; j < arr.size(); j++) {
+                        
+                        Pair newPair2 = new Pair(arr.get(i), arr.get(j));
+                        //System.out.println("newpair2 = " + newPair2);
+                        pairsSet.add(newPair2);
+                        Boolean itsNotNew = pairSupport.containsKey(newPair2);
+                        if (itsNotNew) {
+                            //System.out.println("its not new");
+                            int val = pairSupport.get(newPair2);
+                            Pair compair = new Pair("apr_array_push", "apr_array_make");
+                            if(newPair2.equals(compair)) {
+                                //System.out.println("apr_array_push & apr_array_make: " + pairSupport.get(newPair2));
+                            }
+                            pairSupport.put(newPair2, val + 1);
+                        } else {
+                            //System.out.println("its new");
+                            pairSupport.put(newPair2, 1);
+                        }
+
+                    }
+                }
+                callerPairs.put(callerName, pairsSet);
+                callerContains.put(callerName, callerContainsSet);
 
             }
         }
