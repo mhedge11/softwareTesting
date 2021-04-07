@@ -149,17 +149,19 @@ public class Pi {
                     //pairsSet.add(newPair);
                     //System.out.println("adding " + func1 + " to arr");
                     callerContainsSet.add(func1);
-                    boolean soloLoopItsNotNew = soloSupport.containsKey(func1);
-                if (soloLoopItsNotNew) {
-                    int soloVal = soloSupport.get(func1);
-                    soloSupport.put(func1, soloVal + 1);
-                } else {
-                    soloSupport.put(func1, 1);
-                }
+                    
+                    
                     //String nestedLoopLine = nestedIn.nextLine();
                     //System.out.println("line: " + line);
                     if (!arr.contains(func1)) {
+                        boolean soloLoopItsNotNew = soloSupport.containsKey(func1);
                         arr.add(func1);
+                        if (soloLoopItsNotNew) {
+                            int soloVal = soloSupport.get(func1);
+                            soloSupport.put(func1, soloVal + 1);
+                        } else {
+                            soloSupport.put(func1, 1);
+                        }
                     }
                     line = in.nextLine();
                     //callerContainsSet.add(func1);
