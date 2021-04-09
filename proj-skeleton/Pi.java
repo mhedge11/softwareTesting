@@ -61,7 +61,10 @@ public class Pi {
             }
             /* if we hit a caller title line, begin our algorithm */
             if (line.indexOf("Call graph node") != -1) {
- 
+                int useIndex = line.indexOf("uses=");
+                useIndex = useIndex + 5;
+                int uses = Integer.parseInt(line.substring(useIndex));
+                uses--;
                 /* Get the name of the caller */
                 int firstOfName = line.indexOf("\'") + 1;
                 int lastOfName = line.lastIndexOf("\'");
