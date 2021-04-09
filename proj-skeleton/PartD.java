@@ -2,21 +2,27 @@ import java.io.IOException;
 import java.util.*;
 import java.io.*;
 
-public class Pi {
+public class PartD {
     public static void main(String[] args) throws IOException {
+        System.out.println("part D running");
         /* declare variables for t_support and confidence */
-        int t_support;
-        int t_confidence;
-        /* get them from command line */
+        // int t_support;
+        // int t_confidence;
+        // /* get them from command line */
+        // if (args.length > 1) {
+        //     t_support = Integer.parseInt(args[1]);
+        //     t_confidence = Integer.parseInt(args[2]);
+        // } else {
+        //     /* default to 3 and 65 */
+        //     t_support = 3;
+        //     t_confidence = 65;
+        // }
+        int zStat;
         if (args.length > 1) {
-            t_support = Integer.parseInt(args[1]);
-            t_confidence = Integer.parseInt(args[2]);
+                zStat = Integer.parseInt(args[1]);
         } else {
-            /* default to 3 and 65 */
-            t_support = 3;
-            t_confidence = 65;
+            zStat = 1;
         }
-        
         /* Get the name of the callgraph */
         String callGraphFile = args[0] + ".callgraph";
 
@@ -41,6 +47,10 @@ public class Pi {
         /* pairSupport<Pairs, # of appearances in all scopes>
         can only be incremented once per call block - for support of the pair */
         HashMap<Pair,Integer> pairSupport = new HashMap<Pair,Integer>();
+
+        /* List of zStatandBug
+        saves the values of the zStat calculation to be sorted */
+        List<zStatandBug> zStatSortedBugs = new ArrayList<zStatandBug>();
 
         while (in.hasNextLine()) {
             /* pairsSet gets the set of string pairs of callees within a
@@ -144,7 +154,7 @@ public class Pi {
         for (Map.Entry<Pair,Integer> entry : pairSupport.entrySet()) {
 
             /* If the support threshold is met for possible bug */
-            if (entry.getValue() >= t_support) {
+            //if (entry.getValue() >= t_support) {
 
                 /* Then get the information about that pair */
                 int pairSupp = entry.getValue();
@@ -165,7 +175,6 @@ public class Pi {
                 ArrayList<String> namesOfBuggedCallers = new ArrayList<String>();
 
                 /* If above threshold, it is a bug and needs to be printed */
-                if (aConfidence >= t_confidence) {
                     for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                         /* Go through the functions and check where the pair is not present */
                         if (!(callersSet.getValue().contains(bugPair))) {
@@ -179,14 +188,19 @@ public class Pi {
                     }
                     /* print them out */
                     for (String callerNameToPrint : namesOfBuggedCallers) {
-                        System.out.println("bug: " + a + " in " + callerNameToPrint + 
+                        double zStata = (((double)pairSupp/aSoloSupp)-0.9)/(Math.sqrt(0.9*(1-0.9)/(double)aSoloSupp));
+                        String bugOutput = "" + a + " in " + callerNameToPrint + 
                         ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                        ", confidence: " + String.format("%.2f", aConfidence) + "%");
+                        ", confidence: " + String.format("%.2f", aConfidence) + "%";
+                        zStatandBug newEntry = new zStatandBug(zStata, bugOutput);
+                        zStatSortedBugs.add(newEntry);
+
+                        // System.out.println("bug: " + a + " in " + callerNameToPrint + 
+                        // ", pair: (" + a + ", " + b + "), support: " + pairSupp +
+                        // ", confidence: " + String.format("%.2f", aConfidence) + "%");
                     }
-                }
                 /* clear the array and do the same process again for function b */
                 namesOfBuggedCallers.clear();
-                if (bConfidence >= t_confidence) {
                     for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                         /* Go through the functions and check where the pair is not present */
                         if (!(callersSet.getValue().contains(bugPair))) {
@@ -199,15 +213,23 @@ public class Pi {
                             }
                         }
                     }
-                    for (String callerNameToPrint : namesOfBuggedCallers)
-                    System.out.println("bug: " + b + " in " + callerNameToPrint + 
-                    ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                    ", confidence: " + String.format("%.2f", bConfidence)  + "%");
-                }
+                    for (String callerNameToPrint : namesOfBuggedCallers) {
+                        double zStatb = (((double)pairSupp/bSoloSupp)-0.9)/(Math.sqrt(0.9*(1-0.9)/(double)bSoloSupp));
+                        String bugOutput = "" + a + " in " + callerNameToPrint + 
+                        ", pair: (" + a + ", " + b + "), support: " + pairSupp +
+                        ", confidence: " + String.format("%.2f", bConfidence) + "%";
+                        zStatandBug newEntry = new zStatandBug(zStatb, bugOutput);
+                        zStatSortedBugs.add(newEntry);
+                    // System.out.println("bug: " + b + " in " + callerNameToPrint + 
+                    // ", pair: (" + a + ", " + b + "), support: " + pairSupp +
+                    // ", confidence: " + String.format("%.2f", bConfidence)  + "%");
+                    }
                 namesOfBuggedCallers.clear();
-            }
-            
+            //} 
         }
+        Collections.sort(zStatSortedBugs, new zCompare());
+        for (int i = 0; i < zStatSortedBugs.size(); i++)
+            System.out.println(zStatSortedBugs.get(i));
     }
 }
 
@@ -260,4 +282,29 @@ class Pair {
         public int hashCode() {
             return this.a.hashCode() + this.b.hashCode();
         }
+}
+
+class zStatandBug {
+    double zStat;
+    String bug;
+    public zStatandBug(double z, String s) {
+        this.zStat = z;
+        this.bug = s;
+    }
+    public double getZStat () {
+        return zStat;
+    }
+    public String getBug() {
+        return bug;
+    }
+    @Override
+    public String toString() {
+        return "zStat: " + String.format("%.3f", this.zStat) + " |  " + this.bug;
+    }
+}
+class zCompare implements Comparator<zStatandBug> {
+    public int compare(zStatandBug a, zStatandBug b)
+    {
+        return (int)(1000*b.zStat) - (int)(1000*a.zStat);
+    }
 }
