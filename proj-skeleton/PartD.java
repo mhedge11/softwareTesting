@@ -17,12 +17,6 @@ public class PartD {
         //     t_support = 3;
         //     t_confidence = 65;
         // }
-        int zStat;
-        if (args.length > 1) {
-                zStat = Integer.parseInt(args[1]);
-        } else {
-            zStat = 1;
-        }
         /* Get the name of the callgraph */
         String callGraphFile = args[0] + ".callgraph";
 
@@ -233,12 +227,12 @@ public class PartD {
     }
 }
 
-class Pair {
+/*class Pair {
         String a;
         String b;
         public Pair(String a, String b) {
             /* Pairs are sorted into alphebetical upon creation */
-            if (a.compareTo(b) < 0) {
+            /*if (a.compareTo(b) < 0) {
                 this.a = a;
                 this.b = b;
             } else {
@@ -266,7 +260,7 @@ class Pair {
             Pair other = (Pair) o;
             /* Pairs are equal no matter what position the elements are,
             though they should be alphebetical */
-            if ((this.getA().compareTo(other.getA()) == 0) && (this.getB().compareTo(other.getB()) == 0)) {
+            /*if ((this.getA().compareTo(other.getA()) == 0) && (this.getB().compareTo(other.getB()) == 0)) {
                 return true;
             }
             if ((this.getA().compareTo(other.getB()) == 0) && (this.getB().compareTo(other.getA()) == 0)) {
@@ -282,7 +276,7 @@ class Pair {
         public int hashCode() {
             return this.a.hashCode() + this.b.hashCode();
         }
-}
+}*/
 
 class zStatandBug {
     double zStat;

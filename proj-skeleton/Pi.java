@@ -63,7 +63,14 @@ public class Pi {
             if (line.indexOf("Call graph node") != -1) {
                 int useIndex = line.indexOf("uses=");
                 useIndex = useIndex + 5;
-                int uses = Integer.parseInt(line.substring(useIndex));
+                int uses = 0;
+                try {
+                    uses = Integer.parseInt(line.substring(useIndex));
+                } catch (NumberFormatException e) {
+                    in.close();
+                    System.out.println("uses error");
+                    return;
+                }
                 uses--;
                 /* Get the name of the caller */
                 int firstOfName = line.indexOf("\'") + 1;
