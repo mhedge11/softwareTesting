@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# the below command means:
+# opt -print-callgraph is the function call to print the graph
+# $1 is the first command line argument when someone calls pipair
+# > $1.callgraph means output that function call to the file $1.callgraph
+#clang -emit-llvm -c $1 -o bitcode
+#opt -print-callgraph bitcode 1> /dev/null 2>$1.callgraph
+opt -print-callgraph $1 1> /dev/null 2>$1.callgraph
+java -Xms128m -Xmx128m PartC $@ 2> /dev/null
+
+#opt -print-callgraph bitcode 1> $1.callgraph.bc 2> $1.callgraph.readme
+
+#opt -print-callgraph $1 1> /dev/null 2>$1.callgraph
+
+#java -Xms128 -Xmx128 -cp .. Pi 
+
+#java -Xms128m -Xmx128m -classpath ../ Pi $1.callgraph $2 $3
+#java -Xms128m -Xmx128m -classpath ../ Pi $1.callgraph $2 $3
+
+# opt -print-callgraph $1 1> /dev/null 2>$1.callgraph
+# #java -Xms128m -Xmx128m -cp ../ Pi $@ 2> /dev/null
+# java -Xms128m -Xmx128m -cp ../ Pi $@ 2>&1

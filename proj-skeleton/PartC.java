@@ -2,21 +2,27 @@ import java.io.IOException;
 import java.util.*;
 import java.io.*;
 
-public class PartD {
+public class PartC {
     public static void main(String[] args) throws IOException {
-        System.out.println("part D running");
         /* declare variables for t_support and confidence */
-        // int t_support;
-        // int t_confidence;
-        // /* get them from command line */
-        // if (args.length > 1) {
-        //     t_support = Integer.parseInt(args[1]);
-        //     t_confidence = Integer.parseInt(args[2]);
-        // } else {
-        //     /* default to 3 and 65 */
-        //     t_support = 3;
-        //     t_confidence = 65;
-        // }
+        int t_support;
+        int t_confidence;
+        int cmdLineArgExpand = 0;
+        /* get them from command line */
+        if (args.length > 1) {
+            t_support = Integer.parseInt(args[1]);
+            t_confidence = Integer.parseInt(args[2]);
+        } else {
+            /* default to 3 and 65 */
+            t_support = 3;
+            t_confidence = 65;
+        }
+        if (args.length >= 4) {
+            cmdLineArgExpand = Integer.parseInt(args[3]);
+        } else {
+            cmdLineArgExpand = 0;
+        }
+        
         /* Get the name of the callgraph */
         String callGraphFile = args[0] + ".callgraph";
 
@@ -33,18 +39,26 @@ public class PartD {
         /* callerPairs will set up a hashmap of the unique pairs of
         callee string function names within a caller */
         HashMap<String,HashSet<Pair>> callerPairs = new HashMap<String,HashSet<Pair>>();
+        
+        /* callerPairs will set up a hashmap of the unique pairs of
+        callee string function names within a caller */
+        HashMap<String,HashSet<Pair>> callerPairs2 = new HashMap<String,HashSet<Pair>>();
 
         /* callerContains is hashmap <caller name, set of functions it calls>
         will add each individual function to the hashmap */
         HashMap<String,HashSet<String>> callerContains = new HashMap<String,HashSet<String>>();
 
+        /* callerContains is hashmap <caller name, set of functions it calls>
+        will add each individual function to the hashmap */
+        HashMap<String,HashSet<String>> callerContains2 = new HashMap<String,HashSet<String>>();
+
         /* pairSupport<Pairs, # of appearances in all scopes>
         can only be incremented once per call block - for support of the pair */
         HashMap<Pair,Integer> pairSupport = new HashMap<Pair,Integer>();
 
-        /* List of zStatandBug
-        saves the values of the zStat calculation to be sorted */
-        List<zStatandBug> zStatSortedBugs = new ArrayList<zStatandBug>();
+        /* pairSupport<Pairs, # of appearances in all scopes>
+        can only be incremented once per call block - for support of the pair */
+        HashMap<Pair,Integer> pairSupport2 = new HashMap<Pair,Integer>();
 
         while (in.hasNextLine()) {
             /* pairsSet gets the set of string pairs of callees within a
@@ -67,7 +81,14 @@ public class PartD {
             if (line.indexOf("Call graph node") != -1) {
                 int useIndex = line.indexOf("uses=");
                 useIndex = useIndex + 5;
-                int uses = Integer.parseInt(line.substring(useIndex));
+                int uses = 0;
+                try {
+                    uses = Integer.parseInt(line.substring(useIndex));
+                } catch (NumberFormatException e) {
+                    in.close();
+                    System.out.println("uses error");
+                    return;
+                }
                 uses--;
                 /* Get the name of the caller */
                 int firstOfName = line.indexOf("\'") + 1;
@@ -138,17 +159,124 @@ public class PartD {
                 /* finally, put the sets into the the data structs
                 that need them */
                 callerPairs.put(callerName, pairsSet);
-                callerContains.put(callerName, callerContainsSet);
+                if (!callerContainsSet.isEmpty()) {
+                    callerContains.put(callerName, callerContainsSet);
+                }
 
             } /* end if */
         } /* end while hasNextLine */
         /* close the scanner */
         in.close();
 
+        for (int i = 0; i < cmdLineArgExpand; i++) {
+            
+            /* Iterate through callerContains, getting the set of each
+            callers children. Get the functions each child contains, and add it back
+            to be that callers children. After iterating, set callerContains to
+            callerContains2.
+            */
+            callerContains2.clear();
+            for (Map.Entry<String,HashSet<String>> entry : callerContains.entrySet()) {
+                String callName = entry.getKey();
+                HashSet<String> children = entry.getValue();
+                HashSet<String> expandChildren = new HashSet<String>();
+                for (String child : children) {
+                   // System.out.println("inside callcontains for: "+ child);
+                    if (callerContains.containsKey(child)) {
+                        expandChildren.addAll(callerContains.get(child));
+                    } else {
+                        expandChildren.add(child);
+                    }
+                }
+                callerContains2.put(callName, expandChildren);
+            }
+            callerContains = callerContains2;
+           // System.out.println("----------Caller contains-------------");
+           // System.out.println(callerContains.entrySet());
+            pairSupport2.clear();
+            for (Map.Entry<String, HashSet<String>> entry : callerContains.entrySet()) {
+                String callerNameAgain2 = entry.getKey();
+                HashSet<String> children = entry.getValue();
+                System.out.println("-------in " + callerNameAgain2 + "-------");
+                //pairsSet2.clear();
+                HashSet<Pair> insideScopePairs = new HashSet<Pair>();
+                for (String child1 : children) {
+                    for (String child2 : children) {
+                            if (!child1.equals(child2)) {
+                                System.out.println("pair " + child1 + ", " + child2);
+                                Pair newPair2 = new Pair(child1, child2);
+                                insideScopePairs.add(newPair2);
+                                Boolean itsNotNew = pairSupport2.containsKey(newPair2);
+                                /* if it exists, increase the value. If not, set it to 1 */
+                                if (itsNotNew && !insideScopePairs.contains(newPair2)) {
+                                    int val = pairSupport2.get(newPair2);
+                                    pairSupport2.put(newPair2, val + 1);
+                                    System.out.println("pair " + child1 + ", " + child2 + " new val: " + (val + 1));
+                                } else {
+                                    pairSupport2.put(newPair2, 1);
+                                }
+                            } else {
+                                int soloVal2 = soloSupport.get(child1);
+                                soloSupport.put(child1, soloVal2 - 1);
+                            }
+                        
+                    }
+                }
+            }
+            pairSupport = pairSupport2;
+           // System.out.println("----------pair support-----------");
+           // System.out.println(pairSupport.entrySet());
+                // HashSet<String> childrenFunc1 = callerContains.get(entry.getKey().getA());
+                // HashSet<String> childrenFunc2 = callerContains.get(entry.getKey().getB());
+                // for (String child1 : childrenFunc1) {
+                //     for (String child2 : childrenFunc2) {
+                //         if (!child1.equals(child2)) {
+                //             System.out.println("new pair: " + child1 + ", " + child2);
+                //             Pair newPair2 = new Pair(child1, child2);
+                //             //pairsSet.add(newPair2);
+                //             /* check if the pair already exists */
+                //             Boolean itsNotNew = pairSupport2.containsKey(newPair2);
+                //             /* if it exists, increase the value. If not, set it to 1 */
+                //             if (itsNotNew) {
+                //                 int val = pairSupport2.get(newPair2);
+                //                 pairSupport2.put(newPair2, val + 1);
+                //             } else {
+                //                 pairSupport2.put(newPair2, 1);
+                //             }
+                //         } else {
+                //             int soloVal2 = soloSupport.get(child1);
+                //             soloSupport.put(child1, soloVal2 - 1);
+                //         }
+                //     }
+                // }
+            
+
+
+            callerPairs2.clear();
+            HashSet<Pair> pairsSet2 = new HashSet<Pair>();
+            for (Map.Entry<String, HashSet<String>> entry : callerContains.entrySet()) {
+                String callerNameAgain = entry.getKey();
+                HashSet<String> children = entry.getValue();
+                pairsSet2.clear();
+                for (String child1 : children) {
+                    for (String child2 : children) {
+                        if (!child1.equals(child2)) {
+                            Pair newPair2 = new Pair(child1, child2);
+                            pairsSet2.add(newPair2);
+                        }
+                    }
+                }
+                callerPairs2.put(callerNameAgain, pairsSet2);
+            }
+            callerPairs = callerPairs2;
+           // System.out.println("------------Caller Pairs------------");
+           // System.out.println(callerPairs.entrySet());
+        }
+
         for (Map.Entry<Pair,Integer> entry : pairSupport.entrySet()) {
 
             /* If the support threshold is met for possible bug */
-            //if (entry.getValue() >= t_support) {
+            if (entry.getValue() >= t_support) {
 
                 /* Then get the information about that pair */
                 int pairSupp = entry.getValue();
@@ -169,6 +297,7 @@ public class PartD {
                 ArrayList<String> namesOfBuggedCallers = new ArrayList<String>();
 
                 /* If above threshold, it is a bug and needs to be printed */
+                if (aConfidence >= t_confidence) {
                     for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                         /* Go through the functions and check where the pair is not present */
                         if (!(callersSet.getValue().contains(bugPair))) {
@@ -182,19 +311,14 @@ public class PartD {
                     }
                     /* print them out */
                     for (String callerNameToPrint : namesOfBuggedCallers) {
-                        double zStata = (((double)pairSupp/aSoloSupp)-0.9)/(Math.sqrt(0.9*(1-0.9)/(double)aSoloSupp));
-                        String bugOutput = "" + a + " in " + callerNameToPrint + 
+                        System.out.println("bug: " + a + " in " + callerNameToPrint + 
                         ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                        ", confidence: " + String.format("%.2f", aConfidence) + "%";
-                        zStatandBug newEntry = new zStatandBug(zStata, bugOutput);
-                        zStatSortedBugs.add(newEntry);
-
-                        // System.out.println("bug: " + a + " in " + callerNameToPrint + 
-                        // ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                        // ", confidence: " + String.format("%.2f", aConfidence) + "%");
+                        ", confidence: " + String.format("%.2f", aConfidence) + "%");
                     }
+                }
                 /* clear the array and do the same process again for function b */
                 namesOfBuggedCallers.clear();
+                if (bConfidence >= t_confidence) {
                     for (Map.Entry<String, HashSet<Pair>> callersSet : callerPairs.entrySet()) {
                         /* Go through the functions and check where the pair is not present */
                         if (!(callersSet.getValue().contains(bugPair))) {
@@ -207,148 +331,15 @@ public class PartD {
                             }
                         }
                     }
-                    for (String callerNameToPrint : namesOfBuggedCallers) {
-                        double zStatb = (((double)pairSupp/bSoloSupp)-0.9)/(Math.sqrt(0.9*(1-0.9)/(double)bSoloSupp));
-                        String bugOutput = "" + a + " in " + callerNameToPrint + 
-                        ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                        ", confidence: " + String.format("%.2f", bConfidence) + "%";
-                        zStatandBug newEntry = new zStatandBug(zStatb, bugOutput);
-                        zStatSortedBugs.add(newEntry);
-                    // System.out.println("bug: " + b + " in " + callerNameToPrint + 
-                    // ", pair: (" + a + ", " + b + "), support: " + pairSupp +
-                    // ", confidence: " + String.format("%.2f", bConfidence)  + "%");
-                    }
+                    for (String callerNameToPrint : namesOfBuggedCallers)
+                    System.out.println("bug: " + b + " in " + callerNameToPrint + 
+                    ", pair: (" + a + ", " + b + "), support: " + pairSupp +
+                    ", confidence: " + String.format("%.2f", bConfidence)  + "%");
+                }
                 namesOfBuggedCallers.clear();
-            //} 
+            }
+            
         }
-        Collections.sort(zStatSortedBugs, new zCompare());
-        for (int i = 0; i < zStatSortedBugs.size(); i++)
-            System.out.println(zStatSortedBugs.get(i));
     }
 }
 
-/*class Pair {
-        String a;
-        String b;
-        public Pair(String a, String b) {
-            /* Pairs are sorted into alphebetical upon creation */
-            /*if (a.compareTo(b) < 0) {
-                this.a = a;
-                this.b = b;
-            } else {
-                this.a = b;
-                this.b = a;
-            }
-        } 
-
-        public String getB () {
-            return b;
-        }
-        public String getA() {
-            return a;
-        }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (!(o instanceof Pair)) {
-                System.out.println("its not a pair\n\n\n");
-                return false;
-            }
-            Pair other = (Pair) o;
-            /* Pairs are equal no matter what position the elements are,
-            though they should be alphebetical */
-            /*if ((this.getA().compareTo(other.getA()) == 0) && (this.getB().compareTo(other.getB()) == 0)) {
-                return true;
-            }
-            if ((this.getA().compareTo(other.getB()) == 0) && (this.getB().compareTo(other.getA()) == 0)) {
-                return true;
-            }
-            return false;
-        }
-        @Override
-        public String toString() {
-            return "(" + a + ", " + b + ")";
-        }
-        @Override
-        public int hashCode() {
-            return this.a.hashCode() + this.b.hashCode();
-        }
-}*/
-
-class zStatandBug {
-    double zStat;
-    String bug;
-    public zStatandBug(double z, String s) {
-        this.zStat = z;
-        this.bug = s;
-    }
-    public double getZStat () {
-        return zStat;
-    }
-    public String getBug() {
-        return bug;
-    }
-    @Override
-    public String toString() {
-        return "zStat: " + String.format("%.3f", this.zStat) + " |  " + this.bug;
-    }
-}
-class zCompare implements Comparator<zStatandBug> {
-    public int compare(zStatandBug a, zStatandBug b)
-    {
-        return (int)(1000*b.zStat) - (int)(1000*a.zStat);
-    }
-}
-class Pair {
-    String a;
-    String b;
-    public Pair(String a, String b) {
-        /* Pairs are sorted into alphebetical upon creation */
-        if (a.compareTo(b) < 0) {
-            this.a = a;
-            this.b = b;
-        } else {
-            this.a = b;
-            this.b = a;
-        }
-    } 
-
-    public String getB () {
-        return b;
-    }
-    public String getA() {
-        return a;
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        if (!(o instanceof Pair)) {
-            System.out.println("its not a pair\n\n\n");
-            return false;
-        }
-        Pair other = (Pair) o;
-        /* Pairs are equal no matter what position the elements are,
-        though they should be alphebetical */
-        if ((this.getA().compareTo(other.getA()) == 0) && (this.getB().compareTo(other.getB()) == 0)) {
-            return true;
-        }
-        if ((this.getA().compareTo(other.getB()) == 0) && (this.getB().compareTo(other.getA()) == 0)) {
-            return true;
-        }
-        return false;
-    }
-    @Override
-    public String toString() {
-        return "(" + a + ", " + b + ")";
-    }
-    @Override
-    public int hashCode() {
-        return this.a.hashCode() + this.b.hashCode();
-    }
-}
