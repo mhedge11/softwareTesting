@@ -160,17 +160,10 @@ public class PartC {
                 that need them */
                 callerPairs.put(callerName, pairsSet);
                 callerContains.put(callerName, callerContainsSet);
-                // if (!callerContainsSet.isEmpty()) {
-                //     callerContains.put(callerName, callerContainsSet);
-                // }
-
             } /* end if */
         } /* end while hasNextLine */
         /* close the scanner */
         in.close();
-
-        // System.out.println("orig callerContains:" + callerContains);
-        // System.out.println("orig callerPairs:" + callerPairs);
 
         for (int i = 0; i < cmdLineArgExpand; i++) {
             
@@ -179,95 +172,38 @@ public class PartC {
             to be that callers children. After iterating, set callerContains to
             callerContains2.
             */
-            //callerContains2.clear();
 
             /* callerContainsSet is a HashSet<String> that will be the set of
             String function names that are in the caller function.
             This set is the value for the callerContains hashmap. */
             HashSet<String> callerContainsSet2 = new HashSet<String>();
 
-
-            //System.out.println("cc:" + callerContains);
             HashMap<String,HashSet<String>> callerContains2 = new HashMap<String,HashSet<String>>();
             for (Map.Entry<String,HashSet<String>> entry : callerContains.entrySet()) {
                 String callName = entry.getKey();
                 HashSet<String> children = entry.getValue();
                 HashSet<String> expandChildren = new HashSet<String>();
-                // New test to go with callerContainsSet2 to make printing work correctly
-                // callerContainsSet2.addAll(children);
-                //expandChildren.add(children);
-                //System.out.println("callname:" + callName + " children:" + children);
                 
                 for (String child : children) {
                     if (callerContains.containsKey(child) && callerContains.get(child).size() == 0) {
                         expandChildren.add(child);
                     }
-                   // System.out.println("inside callcontains for: "+ child);
                     else if (callerContains.containsKey(child)) {
                         expandChildren.addAll(callerContains.get(child));
                     } 
                     else {
                         expandChildren.add(child);
-                        
                     }
-                    
                 }
-                // New test to go with callerContainsSet2 to make printing work correctly
-               //callerContainsSet2.add(callName);
                 callerContains2.put(callName, expandChildren);
-                //callerContains2.put(callName, callerContainsSet2);
-                // New test
-                // if (!callerContainsSet2.isEmpty()) {
-                //     callerContains2.put(callName, callerContainsSet2);
-                // }
             }
             callerContains = callerContains2;
-            // System.out.println("----------Caller contains-------------");
-            // System.out.println(callerContains.entrySet());
-            //pairSupport2.clear();
-
-
-
 
             /* soloSupport will hold function names and the number
             of uses for the function as a hasmap <String,int> */
             HashMap<String,Integer> soloSupport2 = new HashMap<String,Integer>();
-            // /* arr is the list of unique callee functions within a scope block */
-            // ArrayList<String> arr = new ArrayList<String>();
-            // for (Map.Entry<String,HashSet<String>> entry : callerContains.entrySet()) {
-            //     String callName = entry.getKey();
-            //     HashSet<String> children = entry.getValue();
-
-            //     for (String child : children) {
-
-            //     }
-
-            // }
-
-            // /*
-            //  * if this is the first time this function occurs in this scope, add it to the
-            //  * list of unique functions. Also increase the uses in soloSupport.
-            //  */
-            // if (!arr.contains(func1)) {
-            //     boolean soloLoopItsNotNew = soloSupport.containsKey(func1);
-            //     arr.add(func1);
-            //     if (soloLoopItsNotNew) {
-            //         int soloVal = soloSupport.get(func1);
-            //         soloSupport.put(func1, soloVal + 1);
-            //     } else {
-            //         soloSupport.put(func1, 1);
-            //     }
-            // }
-
-
-
-
-
-
             HashMap<Pair,Integer> pairSupport2 = new HashMap<Pair,Integer>();
 
-
-            
             for (Map.Entry<String, HashSet<String>> entry : callerContains.entrySet()) {
                 HashSet<Pair> insideScopePairs = new HashSet<Pair>();
                 String callerNameAgain2 = entry.getKey();
@@ -275,11 +211,6 @@ public class PartC {
                 /* arr is the list of unique callee functions within a scope block */
                 ArrayList<String> arr = new ArrayList<String>();
 
-                
-                //System.out.println("-------in " + callerNameAgain2 + "-------");
-                //pairsSet2.clear();
-                //HashSet<Pair> insideScopePairs = new HashSet<Pair>();
-                //insideScopePairs.clear();
                 for (String child1 : children) {
                     for (String child2 : children) {
 
@@ -307,15 +238,9 @@ public class PartC {
                                 soloSupport2.put(child2, 1);
                             }
                         }
-
-
                         if (!child1.equals(child2)) {
-                            // System.out.println("pair " + child1 + ", " + child2);
                             Pair newPair2 = new Pair(child1, child2);
-                            // insideScopePairs.add(newPair2);
                             Boolean itsNotNew = pairSupport2.containsKey(newPair2);
-                            /* if it exists, increase the value. If not, set it to 1 */
-                            // if (itsNotNew && !insideScopePairs.contains(newPair2)) {
                             if (insideScopePairs.contains(newPair2)) {
                                 continue;
                             }
@@ -324,54 +249,17 @@ public class PartC {
                                 int val = pairSupport2.get(newPair2);
                                 val++;
                                 pairSupport2.put(newPair2, val);
-                                // System.out.println("pair " + child1 + ", " + child2 + " new val: " + (val));
                             } else {
                                 pairSupport2.put(newPair2, 1);
                             }
-                        }
-                        // else {
-                        // int soloVal2 = soloSupport.get(child1);
-                        // soloSupport.put(child1, soloVal2 - 1);
-                        // }
-                        
+                        }                        
                     }
                 }
             }
             pairSupport = pairSupport2;
-            // System.out.println("----------pair support-----------");
-            // System.out.println(pairSupport.entrySet());
-
             soloSupport = soloSupport2;
 
-
-
-                // HashSet<String> childrenFunc1 = callerContains.get(entry.getKey().getA());
-                // HashSet<String> childrenFunc2 = callerContains.get(entry.getKey().getB());
-                // for (String child1 : childrenFunc1) {
-                //     for (String child2 : childrenFunc2) {
-                //         if (!child1.equals(child2)) {
-                //             System.out.println("new pair: " + child1 + ", " + child2);
-                //             Pair newPair2 = new Pair(child1, child2);
-                //             //pairsSet.add(newPair2);
-                //             /* check if the pair already exists */
-                //             Boolean itsNotNew = pairSupport2.containsKey(newPair2);
-                //             /* if it exists, increase the value. If not, set it to 1 */
-                //             if (itsNotNew) {
-                //                 int val = pairSupport2.get(newPair2);
-                //                 pairSupport2.put(newPair2, val + 1);
-                //             } else {
-                //                 pairSupport2.put(newPair2, 1);
-                //             }
-                //         } else {
-                //             int soloVal2 = soloSupport.get(child1);
-                //             soloSupport.put(child1, soloVal2 - 1);
-                //         }
-                //     }
-                // }
-            
-
             HashMap<String,HashSet<Pair>> callerPairs2 = new HashMap<String,HashSet<Pair>>();
-            //callerPairs2.clear();
             
             for (Map.Entry<String, HashSet<String>> entry : callerContains.entrySet()) {
                 /**
@@ -381,12 +269,9 @@ public class PartC {
                 HashSet<Pair> pairsSet2 = new HashSet<Pair>();
                 String callerNameAgain = entry.getKey();
                 HashSet<String> children = entry.getValue();
-                // System.out.println("callerNameAgain:" + callerNameAgain);
-                // System.out.println("children:" + children);
                 if (children.size() == 1) {
                     continue;
                 }
-                
                 for (String child1 : children) {
                     for (String child2 : children) {
                         if (!child1.equals(child2)) {
@@ -395,26 +280,13 @@ public class PartC {
                                 continue;
                             }
                             pairsSet2.add(newPair2);
-                            //System.out.println("making new pair:" + newPair2);
                         }
                     }
                 }
-                // System.out.println("out of for loop");
-                // System.out.println("CallerNameAgain:" + callerNameAgain);
-                // System.out.println("in loop pairsSet2:" + pairsSet2);
-                callerPairs2.put(callerNameAgain, pairsSet2);
-                //pairsSet2.clear();
-                // System.out.println("putting into callerPairs2");
-                //System.out.println("in loop callerPairs2:" + callerPairs2);
-                
-                
+                callerPairs2.put(callerNameAgain, pairsSet2);              
             }
             callerPairs = callerPairs2;
-        //    System.out.println("------------Caller Pairs------------");
-        //    System.out.println(callerPairs.entrySet());
         }
-
-        //System.out.println(pairSupport);
 
         for (Map.Entry<Pair,Integer> entry : pairSupport.entrySet()) {
 
@@ -426,7 +298,6 @@ public class PartC {
                 Pair bugPair = entry.getKey();
                 String a = bugPair.getA();
                 String b = bugPair.getB();
-                //System.out.println("bugPair:" + bugPair);
 
                 /* Get each soloSupport to calculate confidence */ 
                 int aSoloSupp = soloSupport.get(a);
@@ -450,8 +321,6 @@ public class PartC {
                             callers array */
                             if (callerContains.get(callersName).contains(a)) {
                                 namesOfBuggedCallers.add(callersName);
-                                // System.out.println("callersName:" + callersName);
-                                // System.out.println("bugPair:" + bugPair);
                             }
                         }
                     }
